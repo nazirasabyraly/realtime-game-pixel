@@ -13,46 +13,15 @@ const firebaseConfig = {
     measurementId: "G-JWT0SWQZWJ"
   };
 
-let app;
-let database;
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-try {
-  // Initialize Firebase
-  app = initializeApp(firebaseConfig);
-  database = getDatabase(app);
-  
-  // Monitor connection state
-  const connectedRef = ref(database, '.info/connected');
-  onValue(connectedRef, (snap) => {
-    if (snap.val() === true) {
-      console.log('Connected to Firebase');
-    } else {
-      console.log('Not connected to Firebase');
-    }
-  });
-
-  console.log('Firebase initialized successfully');
-} catch (error) {
-  console.error('Error initializing Firebase:', error);
-  throw error;
-}
-
-// Player management functions with error handling
 export const addPlayer = async (playerId, playerData) => {
   try {
-    console.log('Adding player:', playerId, playerData);
     const playerRef = ref(database, `players/${playerId}`);
     await set(playerRef, playerData);
-    
-    // Remove player data when they disconnect
     onDisconnect(playerRef).remove();
-
-    // Verify the player was added by reading it back
-    onValue(playerRef, (snapshot) => {
-      console.log('Player data verified:', snapshot.val());
-    }, { onlyOnce: true });
-
-    console.log('Player added successfully:', playerId);
+    return true;
   } catch (error) {
     console.error('Error adding player:', error);
     throw error;
@@ -60,66 +29,50 @@ export const addPlayer = async (playerId, playerData) => {
 };
 
 export const updatePlayerPosition = async (playerId, x, y) => {
-  if (!playerId) {
-    console.error('Attempted to update position without playerId');
-    return;
-  }
-
   try {
     const playerRef = ref(database, `players/${playerId}`);
     await update(playerRef, { x, y });
   } catch (error) {
-    console.error('Error updating player position:', error);
-    // Don't throw here to prevent movement interruption
+    console.error('Error updating position:', error);
   }
 };
 
 export const subscribeToPlayers = (onPlayerAdded, onPlayerMoved, onPlayerRemoved) => {
-  try {
-    console.log('Setting up player subscriptions...');
-    const playersRef = ref(database, 'players');
+  const playersRef = ref(database, 'players');
 
-    // First, get all existing players
-    onValue(playersRef, (snapshot) => {
-      console.log('Initial players data:', snapshot.val());
-    }, { onlyOnce: true });
-    
-    const childAddedUnsubscribe = onChildAdded(playersRef, (snapshot) => {
-      console.log('Player added event:', snapshot.key, snapshot.val());
-      onPlayerAdded(snapshot.key, snapshot.val());
+  // Get initial state and subscribe to changes
+  onValue(playersRef, (snapshot) => {
+    const players = snapshot.val() || {};
+    Object.entries(players).forEach(([id, data]) => {
+      onPlayerAdded(id, data);
     });
-    
-    const childChangedUnsubscribe = onChildChanged(playersRef, (snapshot) => {
-      console.log('Player changed event:', snapshot.key, snapshot.val());
-      onPlayerMoved(snapshot.key, snapshot.val());
-    });
-    
-    const childRemovedUnsubscribe = onChildRemoved(playersRef, (snapshot) => {
-      console.log('Player removed event:', snapshot.key);
-      onPlayerRemoved(snapshot.key);
-    });
+  });
+  
+  // Listen for changes
+  const addedUnsubscribe = onChildAdded(playersRef, (snapshot) => {
+    onPlayerAdded(snapshot.key, snapshot.val());
+  });
+  
+  const changedUnsubscribe = onChildChanged(playersRef, (snapshot) => {
+    onPlayerMoved(snapshot.key, snapshot.val());
+  });
+  
+  const removedUnsubscribe = onChildRemoved(playersRef, (snapshot) => {
+    onPlayerRemoved(snapshot.key);
+  });
 
-    // Return unsubscribe function
-    return () => {
-      console.log('Unsubscribing from player events...');
-      childAddedUnsubscribe();
-      childChangedUnsubscribe();
-      childRemovedUnsubscribe();
-    };
-  } catch (error) {
-    console.error('Error subscribing to players:', error);
-    throw error;
-  }
+  return () => {
+    addedUnsubscribe();
+    changedUnsubscribe();
+    removedUnsubscribe();
+  };
 };
 
 export const removePlayer = async (playerId) => {
   try {
-    console.log('Removing player:', playerId);
     const playerRef = ref(database, `players/${playerId}`);
     await set(playerRef, null);
-    console.log('Player removed successfully:', playerId);
   } catch (error) {
     console.error('Error removing player:', error);
-    throw error;
   }
 }; 

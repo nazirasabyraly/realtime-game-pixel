@@ -1,0 +1,15 @@
+{
+  "rules": {
+    ".read": true,  // Allow read access to all data
+    ".write": true,  // Allow write access to all data
+    "players": {
+      "$playerId": {
+        // Validate player data structure
+        ".validate": "newData.hasChildren(['x', 'y', 'color'])",
+        "x": { ".validate": "newData.isNumber()" },
+        "y": { ".validate": "newData.isNumber()" },
+        "color": { ".validate": "newData.isString()" }
+      }
+    }
+  }
+} 

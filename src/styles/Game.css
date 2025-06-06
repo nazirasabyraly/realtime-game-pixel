@@ -1,0 +1,127 @@
+.game-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.game-board {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  border: 2px solid #333;
+  background-color: #000;
+  margin-right: 20px;
+}
+
+.player {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: all 0.1s linear;
+}
+
+.player-name {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: white;
+  font-size: 12px;
+  text-shadow: 0 0 2px black;
+}
+
+.debug-panel {
+  width: 300px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid #333;
+  border-radius: 5px;
+  font-family: monospace;
+}
+
+.debug-panel h3 {
+  margin-top: 0;
+  color: #00ff00;
+}
+
+.debug-panel p {
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.debug-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.debug-panel li {
+  margin: 5px 0;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.error-message {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 1px solid #ff0000;
+  border-radius: 3px;
+  color: #ff0000;
+}
+
+.name-input-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.name-input-container h2 {
+  margin-bottom: 20px;
+  color: #00ff00;
+}
+
+.name-input-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.name-input-container input {
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #333;
+  color: white;
+  outline: none;
+}
+
+.name-input-container input:focus {
+  box-shadow: 0 0 0 2px #00ff00;
+}
+
+.name-input-container button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #00ff00;
+  color: black;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.name-input-container button:hover {
+  background-color: #00cc00;
+} 
