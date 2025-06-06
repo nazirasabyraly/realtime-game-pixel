@@ -6,29 +6,41 @@ export const useRealtimePlayers = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('Setting up player subscriptions...');
     let unsubscribe;
     try {
       const handlePlayerAdded = (playerId, playerData) => {
-        setPlayers(prev => ({
-          ...prev,
-          [playerId]: playerData
-        }));
+        console.log('Player added:', playerId, playerData);
+        setPlayers(prev => {
+          const newPlayers = {
+            ...prev,
+            [playerId]: playerData
+          };
+          console.log('Updated players state:', newPlayers);
+          return newPlayers;
+        });
       };
 
       const handlePlayerMoved = (playerId, playerData) => {
-        setPlayers(prev => ({
-          ...prev,
-          [playerId]: {
-            ...prev[playerId],
-            ...playerData
-          }
-        }));
+        console.log('Player moved:', playerId, playerData);
+        setPlayers(prev => {
+          const newPlayers = {
+            ...prev,
+            [playerId]: {
+              ...prev[playerId],
+              ...playerData
+            }
+          };
+          return newPlayers;
+        });
       };
 
       const handlePlayerRemoved = (playerId) => {
+        console.log('Player removed:', playerId);
         setPlayers(prev => {
           const newPlayers = { ...prev };
           delete newPlayers[playerId];
+          console.log('Updated players after removal:', newPlayers);
           return newPlayers;
         });
       };
@@ -39,6 +51,8 @@ export const useRealtimePlayers = () => {
         handlePlayerMoved,
         handlePlayerRemoved
       );
+
+      console.log('Successfully subscribed to player changes');
     } catch (err) {
       console.error('Error in useRealtimePlayers:', err);
       setError(err.message);
@@ -46,6 +60,7 @@ export const useRealtimePlayers = () => {
 
     // Cleanup subscription on unmount
     return () => {
+      console.log('Cleaning up player subscriptions...');
       if (unsubscribe) {
         unsubscribe();
       }
